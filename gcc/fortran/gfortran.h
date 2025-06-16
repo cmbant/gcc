@@ -2209,7 +2209,7 @@ gfc_oacc_routine_name;
    earlier.  */
 
 typedef struct gfc_was_finalized {
-  gfc_expr *e;
+  tree addr;                    /* run-time address of object */
   gfc_component *c;
   struct gfc_was_finalized *next;
 }

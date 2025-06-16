@@ -1042,17 +1042,21 @@ finalize_component (gfc_expr *expr, gfc_symbol *derived, gfc_component *comp,
   gfc_expr *e;
   gfc_ref *ref;
   gfc_was_finalized *f;
+  tree obj_addr;
 
   if (!comp_is_finalizable (comp))
     return;
 
-  /* If this expression with this component has been finalized
-     already in this namespace, there is nothing to do.  */
+  /* -----------------------------------------------------------------
+     Use the address of the *actual data object* as the key; identical
+     addresses mean that we have already visited this particular
+     instance of the component.  */
+  obj_addr = gfc_build_addr_expr (pvoid_type_node,
+			gfc_convert_expr_to_tree (expr, true));
+
   for (f = sub_ns->was_finalized; f; f = f->next)
-    {
-      if (f->e == expr && f->c == comp)
-	return;
-    }
+    if (f->c == comp && operand_equal_p (f->addr, obj_addr, 0))
+      return;
 
   e = gfc_copy_expr (expr);
   if (!e->ref)
@@ -1228,12 +1232,12 @@ finalize_component (gfc_expr *expr, gfc_symbol *derived, gfc_component *comp,
       gfc_free_expr (e);
     }
 
-  /* Record that this was finalized already in this namespace.  */
+  /* remember this instance                                           */
   f = sub_ns->was_finalized;
-  sub_ns->was_finalized = XCNEW (gfc_was_finalized);
-  sub_ns->was_finalized->e = expr;
-  sub_ns->was_finalized->c = comp;
-  sub_ns->was_finalized->next = f;
+  sub_ns->was_finalized           = XCNEW (gfc_was_finalized);
+  sub_ns->was_finalized->addr     = obj_addr;
+  sub_ns->was_finalized->c        = comp;
+  sub_ns->was_finalized->next     = f;
 }
 
 
