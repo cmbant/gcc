@@ -2197,15 +2197,7 @@ gfc_oacc_routine_name;
 
 #define gfc_get_oacc_routine_name() XCNEW (gfc_oacc_routine_name)
 
-/* Node in linked list to see what has already been finalized
-   earlier.  */
 
-typedef struct gfc_was_finalized {
-  gfc_expr *e;
-  gfc_component *c;
-  struct gfc_was_finalized *next;
-}
-gfc_was_finalized;
 
 /* A namespace describes the contents of procedure, module, interface block
    or BLOCK construct.  */
@@ -2312,7 +2304,7 @@ typedef struct gfc_namespace
   /* A hash set for the gfc expressions that have already
      been finalized in this namespace.  */
 
-  gfc_was_finalized *was_finalized;
+
 
   /* Set to 1 if namespace is a BLOCK DATA program unit.  */
   unsigned is_block_data:1;
